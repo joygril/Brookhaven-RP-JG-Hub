@@ -1,0 +1,274 @@
+local gui = Instance.new("ScreenGui")
+gui.Name = "JG Hub"
+gui.Parent = cloneref(game.CoreGui) or game.CoreGui
+
+
+local function RESETBLOCK()
+local args = {
+    [1] = "CharacterChange",
+    [2] = {
+        [1] = 0,
+        [2] = 0,
+        [3] = 0,
+        [4] = 0,
+        [5] = 0,
+        [6] = 0
+    },
+    [3] = "AllBlocky"
+}
+
+game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Avata1rOrigina1l"):FireServer(unpack(args))
+end
+
+
+
+
+local function APPLY_SKINTONE(Player)
+    local p = Player
+    local c = p.Character or p.CharacterAdded:Wait()
+    local h = c:FindFirstChildOfClass("Humanoid")
+
+    if not h then
+        warn("Humanoid not found!")
+        return
+    end
+
+    local bodyColors = c:FindFirstChildOfClass("BodyColors")
+
+    if not bodyColors then
+        warn("BodyColors not found!")
+        return
+    end
+
+    -- Get skin tone (use HeadColor or any other body part color)
+    local skinTone = bodyColors.HeadColor
+
+    -- Convert BrickColor to readable string
+    local skinToneName = skinTone.Name
+
+    -- Fire the RemoteEvent with the detected skin tone
+    local args = {
+        [1] = "skintone",
+        [2] = skinToneName
+    }
+
+    game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Updat1eAvata1r"):FireServer(unpack(args))
+end
+
+local function Wear(id)
+game:GetService("ReplicatedStorage").RE:FindFirstChild("1Updat1eAvata1r"):FireServer("wear", id) end
+
+
+local function COPYCLOTHING(Player)
+    local p = Player
+    local c = p.Character or p.CharacterAdded:Wait()
+    local h = c:FindFirstChildOfClass("Humanoid")
+
+    if not h then
+        warn("Humanoid not found!")
+        return
+    end
+
+    local d = h:GetAppliedDescription()
+    local cIds = { d.Shirt, d.Pants, d.GraphicTShirt }
+    local done = false
+
+    task.spawn(function()
+        for _, id in ipairs(cIds) do
+            if id ~= 0 then
+                task.wait(1)
+                Wear(id)
+            end
+        end
+        done = true
+    end)
+
+    repeat task.wait() until done -- Ensure the function waits until completion
+end
+
+local function COPYBODYPART(Player)
+    local p = Player
+    local c = p.Character or p.CharacterAdded:Wait()
+    local h = c:FindFirstChildOfClass("Humanoid")
+
+    if not h then
+        warn("Humanoid not found!")
+        return
+    end
+
+    local d = h:GetAppliedDescription()
+    
+    local bIds = {
+        d.Torso,
+        d.RightArm,
+        d.LeftArm,
+        d.RightLeg,
+        d.LeftLeg,
+        d.Head
+    }
+
+    local done = false
+    task.spawn(function()
+        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Avata1rOrigina1l"):FireServer(
+            "CharacterChange",
+            bIds,
+            "GAZE"
+        )
+        done = true
+    end)
+
+    repeat task.wait() until done
+end
+
+local function COPYACCESSORIES(Player)
+    local p = Player
+    local c = p.Character or p.CharacterAdded:Wait()
+    local h = c:FindFirstChildOfClass("Humanoid")
+
+    if not h then
+        warn("Humanoid not found!")
+        return
+    end
+
+    local d = h:GetAppliedDescription()
+    local aIds = {}
+
+    for _, aList in ipairs({
+        d.HatAccessory,
+        d.HairAccessory,
+        d.FaceAccessory,
+        d.NeckAccessory,
+        d.ShouldersAccessory,
+        d.FrontAccessory,
+        d.BackAccessory,
+        d.WaistAccessory
+    }) do
+        for id in string.gmatch(aList, "%d+") do
+            table.insert(aIds, tonumber(id))
+        end
+    end
+
+    local done = false
+    task.spawn(function()
+        for _, id in ipairs(aIds) do
+            task.wait(1)
+            Wear(id)
+        end
+        done = true
+    end)
+
+    repeat task.wait() until done
+end
+
+
+
+local function START(displayName)
+    local player = nil
+    displayName = string.lower(displayName)
+    for _, plr in ipairs(game.Players:GetPlayers()) do
+        local playerNameLower = string.lower(plr.Name)
+        local playerDisplayNameLower = string.lower(plr.DisplayName)
+        if string.find(playerNameLower, displayName, 1, true) or string.find(playerDisplayNameLower, displayName, 1, true) then
+            player = plr
+            break
+        end
+    end
+
+    if player then
+   
+    COPYACCESSORIES(game.Players.LocalPlayer)
+    COPYACCESSORIES(player)
+    wait(1)
+    RESETBLOCK()
+    wait(3)
+    COPYBODYPART(player)
+    COPYCLOTHING(player)
+    APPLY_SKINTONE(player)
+    
+    
+    
+end
+end
+
+
+-- put your mainframe into the screengui that I have made (frame.Parent = gui) 
+
+local GazerMain = Instance.new("Frame")
+GazerMain.Size = UDim2.new(0.4, 0, 0.4, 0)
+GazerMain.Position = UDim2.new(0.5, -GazerMain.Size.X.Offset / 2, 0.5, -GazerMain.Size.Y.Offset / 2)
+GazerMain.BackgroundColor3 = Color3.fromRGB(238, 130, 238)
+GazerMain.BackgroundTransparency = 0.2
+GazerMain.BorderSizePixel = 0
+GazerMain.Active = true
+GazerMain.Draggable = true
+GazerMain.Parent = gui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.1, 0)
+UICorner.Parent = GazerMain
+
+local GazerTitle = Instance.new("TextLabel")
+GazerTitle.Size = UDim2.new(1, 0, 0.2, 0)
+GazerTitle.Position = UDim2.new(0, 0, 0, 0)
+GazerTitle.BackgroundColor3 = Color3.fromRGB(238, 130, 238)
+GazerTitle.BackgroundTransparency = 0.2
+GazerTitle.BorderSizePixel = 0
+GazerTitle.Text = "Developer.Jeon"
+GazerTitle.TextScaled = true
+GazerTitle.Font = Enum.Font.GothamBold
+GazerTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+GazerTitle.Parent = GazerMain
+
+local UICornerTitle = Instance.new("UICorner")
+UICornerTitle.CornerRadius = UDim.new(0.1, 0)
+UICornerTitle.Parent = GazerTitle
+
+local EnterName = Instance.new("TextBox")
+EnterName.Size = UDim2.new(0.85, 0, 0.2, 0)
+EnterName.Position = UDim2.new(0.075, 0, 0.3, 0)
+EnterName.BackgroundColor3 = Color3.fromRGB(238, 130, 238)
+EnterName.Text = ""
+EnterName.BackgroundTransparency = 0.2
+EnterName.BorderSizePixel = 0
+EnterName.PlaceholderText = "ادخـل اول ثـلاث احـرف مـن اسـم الأعـب "
+EnterName.PlaceholderColor3 = Color3.fromRGB(255,255,255)
+EnterName.TextColor3 = Color3.fromRGB(255, 255, 255)
+EnterName.Font = Enum.Font.Gotham
+EnterName.TextScaled = true
+EnterName.ClearTextOnFocus = true
+EnterName.Parent = GazerMain
+
+local UICornerInput = Instance.new("UICorner")
+UICornerInput.CornerRadius = UDim.new(0.1, 0)
+UICornerInput.Parent = EnterName
+
+local INFO = Instance.new("TextButton")
+INFO.Size = UDim2.new(0.4, 0, 0.2, 0)
+INFO.Position = UDim2.new(0.3, 0, 0.7, 0)
+INFO.BackgroundColor3 = Color3.fromRGB(238, 130, 238)
+INFO.BackgroundTransparency = 0.2
+INFO.BorderSizePixel = 0
+INFO.Text = "نـسـخ"
+INFO.TextScaled = true
+
+INFO.Font = Enum.Font.GothamBold
+INFO.TextColor3 = Color3.fromRGB(255, 255, 255)
+INFO.Parent = GazerMain
+
+local UICornerButton = Instance.new("UICorner")
+UICornerButton.CornerRadius = UDim.new(0.1, 0)
+UICornerButton.Parent = INFO
+
+INFO.MouseButton1Click:Connect(function()
+    local displayName = EnterName.Text
+    
+    
+    INFO.Size = UDim2.new(0, 0, 0, 0)
+    
+    START(displayName)
+    wait(3)
+    INFO.Size = UDim2.new(0.4, 0, 0.2, 0)
+    
+    
+    
+end)
